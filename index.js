@@ -22,10 +22,10 @@ app.get("/", (req, res) => {
         'price' : item.__EMPTY_15,
         
                 })
-                array.push({'total' : total})
               }
             },
           ) 
+          array.push({'total' : total})
           
 
 
