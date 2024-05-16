@@ -39,3 +39,5 @@ const parseDataAnalitcs = (item) => {
       balance: total,
     };
   };
+
+  export default {controllerAnalitics}

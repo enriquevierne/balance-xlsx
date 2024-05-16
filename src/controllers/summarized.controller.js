@@ -36,3 +36,5 @@ const parseDataSintetics = (item) => {
       total: total
     };
   };
+
+  export default {controllerSintetics}
