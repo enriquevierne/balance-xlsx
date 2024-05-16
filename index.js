@@ -9,6 +9,42 @@ const port = 3000;
 app.use(cors())
 
 app.use(bodyParser.json());
+
+const fixedExpenses = [
+  "Combustível",
+  "Impostos diversos",
+  "Taxas diversas",
+  "Plano Cooperativo Ibpaz",
+  "Despesas diversas",
+  "Prestação de serviços",
+  "Ajuda de Custo",
+  "Encargos",
+  "Água",
+  "Energia",
+  "Telefone e internet",
+  "Aluguel Imóvel",
+  "Aquisições diversas"
+]
+const salariesExpenses = [
+  "Salário",
+  "Férias",
+  "13º Salário",
+]
+const generalExpenses = [
+  "Papelaria e Gráfica",
+  "Eventos Igreja",
+  "Mat. Didático",
+  "Despesas Viagens",
+]
+
+const otherExpenses = [
+  "Mat elétrico; hidráulico",
+  "Construção Propriedade M. Preto",
+  "Equipamentos som e acessórios",
+]
+
+const expenses = [{'Despesas Ordinárias': fixedExpenses}, {'Salários': salariesExpenses}, {'Gerais': generalExpenses}, {'Outras':otherExpenses}]
+
 const analitics = {
   out: "./files/analitics_out.xlsx",
   nov: "./files/analitics_nov.xlsx",
@@ -17,6 +53,7 @@ const analitics = {
   fev: "./files/analitics_fev.xlsx",
   mar: "./files/analitics_mar.xlsx",
 };
+
 const sintetics = {
   out: "./files/sintetics_out.xlsx",
   nov: "./files/sintetics_nov.xlsx",
@@ -26,14 +63,13 @@ const sintetics = {
   mar: "./files/sintetics_mar.xlsx",
 };
 
-
 app.get("/categories", (req, res) => {
   const { month } = req.query;
   if (month && Object.keys(analitics).includes(month)) {
     const wb = xlsx.readFile(analitics[month]);
     const ws = wb.Sheets["Relatório"];
     const data = xlsx.utils.sheet_to_json(ws);
-
+    
     const uniqueCategories = extractUniqueCategories(data);
 
     return res.send({
@@ -132,13 +168,44 @@ const controllerAnalitics = (month) => {
   const { filteredData, total } = filterAndCalculateTotalAnalitics(jsonData);
 
   const analytics = filteredData.map(parseDataAnalitcs);
+  const groups = sortCategory(analytics)
 
   return {
     month: month,
-    analytics: analytics,
+    analytics: groups,
     balance: total,
   };
 };
+
+const sortCategory = (array) => {
+const obj = {fixed: [],
+  salaries: [],
+  general: [],
+  others: []
+}
+
+  const data = array.map(item => {
+    if(fixedExpenses.includes(item.categoria)){
+      console.log(item.categoria);
+     return obj.fixed.push(item)
+    }
+    if(salariesExpenses.includes(item.categoria)){
+      console.log(item.categoria);
+      return obj.salaries.push(item)
+    }
+    if(generalExpenses.includes(item.categoria)){
+      console.log(item.categoria);
+      return obj.general.push(item)
+    }else{
+      console.log(item.categoria);
+      return obj.others.push(item)
+    }
+  })
+  
+return data
+}
+
+
 
 app.listen(port, () => {
   console.log(`O servidor está rodando na porta ${port}`);
