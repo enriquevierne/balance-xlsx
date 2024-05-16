@@ -10,20 +10,20 @@ app.use(cors())
 
 app.use(bodyParser.json());
 const analitics = {
-  out: "./analitics_out.xlsx",
-  nov: "./analitics_nov.xlsx",
-  dez: "./analitics_dez.xlsx",
-  jan: "./analitics_jan.xlsx",
-  fev: "./analitics_fev.xlsx",
-  mar: "./analitics_mar.xlsx",
+  out: "./files/analitics_out.xlsx",
+  nov: "./files/analitics_nov.xlsx",
+  dez: "./files/analitics_dez.xlsx",
+  jan: "./files/analitics_jan.xlsx",
+  fev: "./files/analitics_fev.xlsx",
+  mar: "./files/analitics_mar.xlsx",
 };
 const sintetics = {
-  out: "./sintetics_out.xlsx",
-  nov: "./sintetics_nov.xlsx",
-  dez: "./sintetics_dez.xlsx",
-  jan: "./sintetics_jan.xlsx",
-  fev: "./sintetics_fev.xlsx",
-  mar: "./sintetics_mar.xlsx",
+  out: "./files/sintetics_out.xlsx",
+  nov: "./files/sintetics_nov.xlsx",
+  dez: "./files/sintetics_dez.xlsx",
+  jan: "./files/sintetics_jan.xlsx",
+  fev: "./files/sintetics_fev.xlsx",
+  mar: "./files/sintetics_mar.xlsx",
 };
 
 
