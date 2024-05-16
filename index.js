@@ -1,7 +1,14 @@
 const xlsx = require("xlsx");
 const express = require("express");
 const bodyParser = require("body-parser");
+var cors = require('cors')
 
+const app = express();
+const port = 3000;
+
+app.use(cors())
+
+app.use(bodyParser.json());
 const analitics = {
   out: "./analitics_out.xlsx",
   nov: "./analitics_nov.xlsx",
@@ -19,13 +26,11 @@ const sintetics = {
   mar: "./sintetics_mar.xlsx",
 };
 
-const app = express();
-const port = 3000;
-app.use(bodyParser.json());
 
 app.get("/categories", (req, res) => {
-  if (req.query.month && Object.keys(analitics).includes(req.query.month)) {
-    const wb = xlsx.readFile(analitics[req.query.month]);
+  const { month } = req.query;
+  if (month && Object.keys(analitics).includes(month)) {
+    const wb = xlsx.readFile(analitics[month]);
     const ws = wb.Sheets["Relatório"];
     const data = xlsx.utils.sheet_to_json(ws);
 
@@ -44,18 +49,10 @@ app.get("/categories", (req, res) => {
 app.get("/sintetic", (req, res) => {
   const { month } = req.query;
   if (month && Object.keys(sintetics).includes(month)) {
-    const wb = xlsx.readFile(sintetics[month]);
-    const ws = wb.Sheets["Relatório"];
-    const data = xlsx.utils.sheet_to_json(ws);
-
-    const uniqueCategories = controllerSintetics(month);
-
-    return res.send({
-      categories: uniqueCategories,
-      length: uniqueCategories.length,
-    });
+    return res.send(controllerSintetics(month));
   } else {
     return res.status(400).send({
+      status: 400,
       error: "Mês não fornecido ou inválido",
     });
   }
@@ -80,7 +77,7 @@ const extractUniqueCategories = (data) => {
     .filter((category, index, self) => self.indexOf(category) === index);
 };
 
-const parseData = (item) => {
+const parseDataAnalitcs = (item) => {
   return {
     categoria: item.__EMPTY.slice(item.__EMPTY.indexOf("-") + 2),
     item: item.__EMPTY_4,
@@ -88,10 +85,26 @@ const parseData = (item) => {
   };
 };
 
-const filterAndCalculateTotal = (data) => {
+const parseDataSintetics = (item) => {
+  return {
+    item: item.__EMPTY,
+    price: parseFloat(item.__EMPTY_12),
+  };
+};
+
+
+const filterAndCalculateTotalAnalitics = (data) => {
   const filteredData = data.filter((item) => item.__EMPTY && item.__EMPTY_4 && !isNaN(item.__EMPTY_15));
 
   const total = filteredData.reduce((acc, item) => acc + parseFloat(item.__EMPTY_15), 0);
+
+  return { filteredData, total };
+};
+
+const filterAndCalculateTotalSintetics = (data) => {
+  const filteredData = data.filter((item) => item.__EMPTY && item.__EMPTY_12);
+
+  const total = filteredData.reduce((acc, item) => acc + parseFloat(item.__EMPTY_12), 0);
 
   return { filteredData, total };
 };
@@ -101,15 +114,14 @@ const controllerSintetics = (month) => {
   const worksheet = workbook.Sheets["Relatório"];
   const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-  /* const { filteredData, total } = filterAndCalculateTotal(jsonData);
+  const { filteredData, total } = filterAndCalculateTotalSintetics(jsonData);
 
-  const analytics = filteredData.map(parseData);
+  const payload = filteredData.map(parseDataSintetics);
 
   return {
-    month: month,
-    analytics: analytics,
-    balance: total,
-  }; */
+    payload: payload,
+    total: total
+  };
 };
 
 const controllerAnalitics = (month) => {
@@ -117,9 +129,9 @@ const controllerAnalitics = (month) => {
   const worksheet = workbook.Sheets["Relatório"];
   const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-  const { filteredData, total } = filterAndCalculateTotal(jsonData);
+  const { filteredData, total } = filterAndCalculateTotalAnalitics(jsonData);
 
-  const analytics = filteredData.map(parseData);
+  const analytics = filteredData.map(parseDataAnalitcs);
 
   return {
     month: month,
