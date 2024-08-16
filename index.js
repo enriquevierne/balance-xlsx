@@ -60,8 +60,17 @@ const sintetics = {
   dez: "./files/sintetics_dez.xlsx",
   jan: "./files/sintetics_jan.xlsx",
   fev: "./files/sintetics_fev.xlsx",
-  mar: "./files/sintetics_mar.xlsx",
+  mar: "./files/data.xlsx",
 };
+
+app.get("/data", (req, res) => {
+  const wb = xlsx.readFile("./files/data.xlsx");
+  const ws = wb.Sheets["Relatório"];
+  const data = xlsx.utils.sheet_to_json(ws);
+  console.log(data)
+  return res.send(data)
+})
+
 
 app.get("/categories", (req, res) => {
   const { month } = req.query;
